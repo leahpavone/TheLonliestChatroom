@@ -6,105 +6,83 @@ const deleteEl = document.getElementsByClassName("delete");
 const inputForm = document.querySelector("form");
 const input = document.querySelector("input");
 const button = document.querySelector("button");
+button.setAttribute("id", "button");
+button.setAttribute("type", "submit");
 
-let messages = [];
 let senders = ["Me", "Myself", "I"];
 
-const getSender = (sendersArray) => {
-  let randomIndex = Math.floor(Math.random() * sendersArray.length);
-  let sender = sendersArray[randomIndex];
-  return sender;
-};
-getSender(senders);
+async function fetchData() {
+  const joke = await fetch("https://api.chucknorris.io/jokes/random")
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      const joke = data.value;
+      return joke;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  return joke;
+}
 
-const messageObj = {
-  time: new Date().toLocaleTimeString([], {
+function getMessage(origin, joke) {
+  const isJoke = origin === "button";
+  const isText = origin === "input";
+  console.log(isText);
+  const message = new Object();
+  message.time = new Date().toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit"
-  }),
-  sender: "",
-  messageContent: "",
-  delete: "❌"
-};
+  });
+  message.sender = "";
+  message.content = "";
+  message.delete = "❌";
 
-inputForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  messages.push(input.value);
-
-  input.value = "";
+  let randomIndex = Math.floor(Math.random() * senders.length);
 
   const messageContainer = document.createElement("div");
   messageContainer.classList.add("message");
   chatBox.appendChild(messageContainer);
 
   const messageTime = document.createElement("span");
-  messageTime.innerHTML = messageObj.time;
+  messageTime.innerHTML = message.time;
   messageContainer.appendChild(messageTime);
 
   const messageSender = document.createElement("span");
-
   messageSender.classList.add("sender");
-  messageObj.sender = messageSender.innerHTML = getSender(senders) + ":";
+
+  isJoke
+    ? (messageSender.innerHTML = "Fact:")
+    : (messageSender.innerHTML = senders[randomIndex] + ":");
   messageContainer.appendChild(messageSender);
 
   const messageText = document.createElement("span");
-  messageContainer.appendChild(messageText);
-  messages.map((message) => {
-    messageText.innerHTML = message;
-    messageObj.messageContent = message;
-  });
+  const chatMessage = isText ? input.value : joke;
+  console.log(chatMessage);
+  messageText.innerHTML = chatMessage;
 
+  messageContainer.appendChild(messageText);
+  console.log(input.value);
+  console.log(messageText);
   const messageDelete = document.createElement("span");
-  messageDelete.innerHTML = messageObj.delete;
+  messageDelete.innerHTML = message.delete;
   messageDelete.classList.add("delete");
   messageContainer.appendChild(messageDelete);
 
   messageDelete.addEventListener("click", () => {
     messageDelete.parentElement.remove();
   });
+}
+
+inputForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  getMessage("input");
+  input.value = "";
 });
 
-// ==============    Chuck Norris API
-
-button.addEventListener("click", () => {
-  function fetchData() {
-    fetch("https://api.chucknorris.io/jokes/random")
-      .then((response) => {
-        if (!response.ok) {
-          throw Error("ERROR");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const jokeContainer = document.createElement("div");
-        jokeContainer.classList.add("message");
-        chatBox.appendChild(jokeContainer);
-
-        const jokeTime = document.createElement("span");
-        jokeTime.innerHTML = messageObj.time;
-        jokeContainer.appendChild(jokeTime);
-
-        const jokeSender = document.createElement("span");
-        jokeSender.classList.add("sender");
-        messageObj.sender = jokeSender.innerHTML = "Fact:";
-        jokeContainer.appendChild(jokeSender);
-
-        const jokeText = document.createElement("span");
-        jokeContainer.appendChild(jokeText);
-        jokeText.innerHTML = data.value;
-
-        const jokeDelete = document.createElement("span");
-        jokeDelete.innerHTML = messageObj.delete;
-        jokeDelete.classList.add("delete");
-        jokeContainer.appendChild(jokeDelete);
-
-        jokeDelete.addEventListener("click", () => {
-          jokeDelete.parentElement.remove();
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-  fetchData();
+button.addEventListener("click", async () => {
+  const joke = await fetchData();
+  console.log(joke);
+  getMessage("button", joke);
 });
