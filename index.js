@@ -6,8 +6,6 @@ const deleteEl = document.getElementsByClassName("delete");
 const inputForm = document.querySelector("form");
 const input = document.querySelector("input");
 const button = document.querySelector("button");
-button.setAttribute("id", "button");
-button.setAttribute("type", "submit");
 
 let senders = ["Me", "Myself", "I"];
 
@@ -29,7 +27,6 @@ async function fetchData() {
 function getMessage(origin, joke) {
   const isJoke = origin === "button";
   const isText = origin === "input";
-  console.log(isText);
   const message = new Object();
   message.time = new Date().toLocaleTimeString([], {
     hour: "2-digit",
@@ -59,12 +56,9 @@ function getMessage(origin, joke) {
 
   const messageText = document.createElement("span");
   const chatMessage = isText ? input.value : joke;
-  console.log(chatMessage);
   messageText.innerHTML = chatMessage;
 
   messageContainer.appendChild(messageText);
-  console.log(input.value);
-  console.log(messageText);
   const messageDelete = document.createElement("span");
   messageDelete.innerHTML = message.delete;
   messageDelete.classList.add("delete");
@@ -83,6 +77,5 @@ inputForm.addEventListener("submit", (e) => {
 
 button.addEventListener("click", async () => {
   const joke = await fetchData();
-  console.log(joke);
   getMessage("button", joke);
 });
